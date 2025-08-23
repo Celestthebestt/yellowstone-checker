@@ -1,16 +1,28 @@
-import requests
 import smtplib
+import os
 
 def check_availability():
-    # 🔧 This is a placeholder until we connect to Xanterra properly.
-    # For now, it always says "no availability".
-    # Later, we’ll hook it up to check the real website.
-    return False
+    # 🔧 Placeholder: change to real Xanterra check later
+    return True  # For testing, always triggers notification
 
 def notify():
-    # This just prints for now.
-    # Later we’ll send you an email or text.
-    print("🎉 An RV site is available at Canyon Campground on Sept 13, 2025!")
+    gmail_user = os.environ["EMAIL_ADDRESS"]
+    gmail_password = os.environ["EMAIL_PASSWORD"]
+    to = gmail_user
+
+    subject = "🎉 Yellowstone RV Site Available!"
+    body = "An RV site at Canyon Campground is open for September 13, 2025!"
+
+    email_text = f"Subject: {subject}\n\n{body}"
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(gmail_user, gmail_password)
+        server.sendmail(gmail_user, to, email_text)
+        server.close()
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 def main():
     if check_availability():
