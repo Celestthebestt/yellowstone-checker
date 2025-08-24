@@ -1,34 +1,30 @@
-import smtplib
-import os
+name: Yellowstone Checker
 
-def check_availability():
-    # 🔧 Placeholder: change to real Xanterra check later
-    return True  # For testing, always triggers notification
+on:
+  schedule:
+    - cron: "0 * * * *"   # Runs every hour
+  workflow_dispatch:       # Lets you run manually
 
-def notify():
-    gmail_user = os.environ["EMAIL_ADDRESS"]
-    gmail_password = os.environ["EMAIL_PASSWORD"]
-    to = gmail_user
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    subject = "🎉 Yellowstone RV Site Available!"
-    body = "An RV site at Canyon Campground is open for September 13, 2025!"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    email_text = f"Subject: {subject}\n\n{body}"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
 
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(gmail_user, gmail_password)
-        server.sendmail(gmail_user, to, email_text)
-        server.close()
-        print("Email sent successfully!")
-    except Exception as e:
-        print(f"Error sending email: {e}")
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
 
-def main():
-    if check_availability():
-        notify()
-    else:
-        print("No sites yet...")
-
-if __name__ == "__main__":
-    main()
+      - name: Run script
+        env:
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: python yellowstone_checker.py
